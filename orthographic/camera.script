@@ -24,6 +24,10 @@ go.property("deadzone_right", 0)
 go.property("deadzone_top", 0)
 
 local camera = require "orthographic.camera"
+local MSG_ADD_STICKY_GO = hash("add_sticky_go")
+local MSG_REMOVE_STICKY_GO = hash("remove_sticky_go")
+
+local sticky_gos = {}
 
 local function has_active_follow_target(follow_id)
 	local ok, err = pcall(go.get_position, follow_id)
@@ -72,6 +76,17 @@ function on_message(self, message_id, message, sender)
 		if self.offset_gui then
 			camera.send_camera_offset(go.get_id())
 		end
+		for go_,go_info in pairs(sticky_gos) do
+			local position = go_info.position
+			local new_position = camera.screen_to_world(go_info.camera, go_info.position)
+			new_position.z = position.z
+			go.set_position(new_position,go_)
+		end
+	elseif message_id ==  MSG_ADD_STICKY_GO then
+		sticky_gos[message.go] = {camera = message.camera, position = message.position }
+
+	elseif message_id ==  MSG_REMOVE_STICKY_GO then
+		sticky_gos[message.go] = nil
 	elseif message_id == camera.MSG_ENABLE then
 		self.enabled = true
 	elseif message_id == camera.MSG_DISABLE then
