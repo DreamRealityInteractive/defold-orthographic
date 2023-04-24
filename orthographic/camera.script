@@ -77,13 +77,17 @@ function on_message(self, message_id, message, sender)
 			camera.send_camera_offset(go.get_id())
 		end
 		for go_,go_info in pairs(sticky_gos) do
+			if go_info.fixed_zoom then
+				local scale =  go_info.fixed_zoom / self.zoom
+				go.set_scale(vmath.vector3(scale,scale,1),go_)
+			end
 			local position = go_info.position
 			local new_position = camera.screen_to_world(go_info.camera, go_info.position)
 			new_position.z = position.z
 			go.set_position(new_position,go_)
 		end
 	elseif message_id ==  MSG_ADD_STICKY_GO then
-		sticky_gos[message.go] = {camera = message.camera, position = message.position }
+		sticky_gos[message.go] = {camera = message.camera, position = message.position,fixed_zoom =message.fixed_zoom }
 
 	elseif message_id ==  MSG_REMOVE_STICKY_GO then
 		sticky_gos[message.go] = nil
