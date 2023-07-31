@@ -11,6 +11,7 @@ function init(self)
 	self.gui_pred = render.predicate({"gui"})
 	self.text_pred = render.predicate({"text"})
 	self.particle_pred = render.predicate({"particle"})
+	self.world_gui = render.predicate({"world_gui"})
 
 	self.clear_color = vmath.vector4(0, 0, 0, 0)
 	self.clear_color.x = sys.get_config("render.clear_color_red", 0)
@@ -49,6 +50,9 @@ function update(self)
 			frustum = proj * view
 			render.draw(self.tile_pred, {frustum = frustum})
 			render.draw(self.particle_pred, {frustum = frustum})
+			render.enable_state(render.STATE_STENCIL_TEST)
+			render.draw(self.world_gui, {frustum = frustum})
+			render.disable_state(render.STATE_STENCIL_TEST)
 			render.draw_debug3d()
 		end
 	end
